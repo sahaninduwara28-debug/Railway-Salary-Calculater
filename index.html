@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script>
+/* PASTE YOUR FIREBASE WEB APP CONFIG HERE (Firebase console > Project settings > Your apps) */
+window.FIREBASE_CONFIG={apiKey:"AIzaSyBSH3lIizj6C-nvhabq_vnZ_ZvcunOvhbc",authDomain:"railway-salary-calculato-1fd86.firebaseapp.com",projectId:"railway-salary-calculato-1fd86",storageBucket:"railway-salary-calculato-1fd86.firebasestorage.app",messagingSenderId:"991198165482",appId:"1:991198165482:web:60a20d85414c8702679a93"};
+</script>
+<title>Monthly Salary Calculator</title>
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--bg:#f4f6fa;--card:#fff;--tx:#1b2430;--mu:#657080;--ac:#1f6feb;--bd:#dde3ec;--ok:#1a7f4b;--bad:#c62828}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#10141a;--card:#1a2029;--tx:#e8edf3;--mu:#97a3b3;--ac:#5aa2ff;--bd:#2c3542;--ok:#4cc38a;--bad:#ff7b72}}
+:root[data-theme="dark"]{--bg:#10141a;--card:#1a2029;--tx:#e8edf3;--mu:#97a3b3;--ac:#5aa2ff;--bd:#2c3542;--ok:#4cc38a;--bad:#ff7b72}
+html{scroll-padding-top:env(safe-area-inset-top,0px);color-scheme:light dark}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:760px;margin:0 auto;padding:14px}
+h1{font-size:20px;margin:0}h2{font-size:16px;margin:0 0 10px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+label{display:block;font-size:12px;color:var(--mu);margin-bottom:3px}
+input,select{width:100%;padding:10px;border:1px solid var(--bd);border-radius:10px;background:var(--bg);color:var(--tx);font:inherit}
+button{padding:10px 14px;border:0;border-radius:10px;background:var(--ac);color:#fff;font:inherit;font-weight:600;cursor:pointer}
+button.s{background:transparent;color:var(--ac);border:1px solid var(--bd)}button.x{background:transparent;color:var(--bad);padding:4px 8px}
+details summary{cursor:pointer;font-weight:600}
+.row{display:flex;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px dashed var(--bd)}
+.row:last-child{border:0}.mu{color:var(--mu);font-size:13px}
+.tot{font-size:22px;font-weight:700;color:var(--ok)}
+.tag{display:inline-block;padding:1px 8px;border-radius:99px;font-size:12px;background:var(--bg);border:1px solid var(--bd)}
+.ent{display:flex;align-items:center;justify-content:space-between;gap:6px;padding:6px 0;border-bottom:1px solid var(--bd)}
+.bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+@media print{.np{display:none!important}body{background:#fff;color:#000}.card{break-inside:avoid}}
+</style></head><body><div class="w">
+<div class="top"><h1 id="ttl"></h1><div class="np" style="display:flex;gap:6px;align-items:center"><span class="mu" id="who"></span><button class="s" id="out"></button><button class="s" id="lg"></button></div></div>
+<div id="gate" class="card np" style="display:none;text-align:center;padding:26px"><h2 id="gT"></h2><p class="mu" id="gX"></p><button id="gb"></button></div>
+<div id="app" style="display:none">
+<div class="card np"><details id="setd"><summary id="sSet"></summary><div class="g" id="set" style="margin-top:10px"></div><p class="mu" id="hint"></p></details></div>
+<div class="card np"><h2 id="sSync"></h2><div class="g"><div><label id="lFrom"></label><input type="month" id="mf"></div><div><label id="lTo"></label><input type="month" id="mt"></div></div><div class="bar"><button id="sync"></button></div><p class="mu" id="syncMsg"></p></div>
+<div class="card np"><h2 id="sAdd"></h2>
+<div class="g"><div><label id="lDate"></label><input type="date" id="d"></div>
+<div><label id="lType"></label><select id="t"></select></div>
+<div id="hw" style="display:none"><label id="lHrs"></label><input type="number" id="h" min="0" step="0.5" value="18"></div>
+<div><label id="lNote"></label><input id="n"></div></div>
+<div class="bar"><button id="add"></button><button class="s" id="ex"></button><button class="s" id="clr"></button></div></div>
+<div class="card np"><h2 id="sList"></h2><div id="list"></div></div>
+<div id="res"></div>
+<div class="bar np"><button id="pr"></button><button class="s" id="cp"></button></div>
+</div><p class="mu np" id="foot"></p></div>
+<script>
+const L={en:{ttl:"Monthly Salary Calculator",sSet:"⚙️ Salary rules & rates",sAdd:"➕ Add an entry",sList:"📅 Your entries",lDate:"Date",lType:"Type",lHrs:"OT hours",lNote:"Note (optional)",add:"Add",ex:"Load example",clr:"Clear all",pr:"🖨️ Print / Save PDF",cp:"Copy summary",
+med:"Medical leave",cas:"Casual leave",half:"Half day",short:"Short leave",duty:"Duty leave",ot:"OT (overtime)",bata:"Bata",
+basic:"Basic salary (Rs)",cola:"Cost of living allowance (Rs)",inc:"Incentive 100% (Rs)",otRate:"OT per hour (Rs)",bataRate:"Bata per day (Rs)",otDelay:"OT paid after (months)",freeLeaves:"Leaves with full incentive",freeShort:"Free short leaves / month",extraShort:"Extra short leave counts as (leave)",medQ:"Medical leave / year",casQ:"Casual leave / year",tiers:"Incentive cuts (leaves:% off)",
+hint:"2 half days = 1 leave. Duty leave is not counted. Short leaves beyond the free ones count as the value above.",
+none:"No entries yet. Add one above or load the example.",leaves:"Leaves counted",incen:"Incentive",otE:"OT earned",otP:"OT received this month",bt:"Bata",bs:"Basic",co:"Cost of living",full:"FULL SALARY",pend:"Upcoming OT payments",bal:"Leave balance",used:"used",left:"left",tot:"Total",hrs:"hrs",disc:"off",foot:"Your data stays only in this browser. Nothing is uploaded.",copied:"Copied!",conf:"Delete all entries?",month:"Month",sSync:"📅 Sync from Google Calendar",lFrom:"From month",lTo:"To month",sync:"Sync now",nomcp:"Calendar sync works when this page is opened in claude.ai with the Google Calendar connector connected. You can still add entries manually.",badrange:"Choose a valid month range.",syncing:"Syncing…",synced:"entries imported",more:"Many events found - shorten the range to be sure nothing is missed.",err_needs_reauth:"Google Calendar must be reconnected in claude.ai.",err_server_not_connected:"Google Calendar is not connected. Add the connector in claude.ai.",err_approval_required:"Please allow Calendar access when asked, then press Sync again.",err_x:"Could not read the calendar. Try again in a moment.",kwmed:"Medical leave words",kwcas:"Casual leave words",kwhalf:"Half day words",kwshort:"Short leave words",kwduty:"Duty leave words",kwot:"OT words (hours = number in title)",kwbata:"Bata words (e.g. bata, trail)",lCid:"Google OAuth Client ID (your own - see setup steps)",needcid:"Paste your Google OAuth Client ID above first.",nogsi:"Google sign-in script did not load. Check your internet and that the page is opened from an https address.",err_auth:"Google sign-in was cancelled or refused.",err_http401:"Google sign-in expired. Press Sync again.",err_http403:"Calendar API is not enabled for this project, or access was refused.",gT:"Your personal salary calculator",gX:"Sign in with your Gmail to save your own details, add leaves and OT, and see your monthly salary on any device.",gb:"Sign in with Google",out:"Sign out",welcome:"Welcome! Fill in your salary details below, then add entries or sync from Google Calendar.",saveerr:"Could not save to the cloud.",needcloud:"Sign-in is not set up in this copy of the app.",nocloud:"Cloud sign-in is not configured - data stays in this browser only."},
+si:{ttl:"මාසික වැටුප් ගණකය",sSet:"⚙️ වැටුප් නීති සහ අනුපාත",sAdd:"➕ දත්තයක් එක් කරන්න",sList:"📅 ඔබේ දත්ත",lDate:"දිනය",lType:"වර්ගය",lHrs:"OT පැය",lNote:"සටහන (අවශ්‍ය නම්)",add:"එක් කරන්න",ex:"උදාහරණය",clr:"සියල්ල මකන්න",pr:"🖨️ Print / PDF",cp:"සාරාංශය Copy",
+med:"Medical leave",cas:"Casual leave",half:"Half day",short:"Short leave",duty:"Duty leave",ot:"OT (අතිකාල)",bata:"Bata",
+basic:"මූලික වැටුප (Rs)",cola:"ජීවන වියදම් දීමනාව (Rs)",inc:"Incentive 100% (Rs)",otRate:"පැයකට OT (Rs)",bataRate:"දිනකට Bata (Rs)",otDelay:"OT ලැබෙන්නේ (මාස පසු)",freeLeaves:"Incentive සම්පූර්ණ ලැබෙන නිවාඩු",freeShort:"මාසයකට free short leave",extraShort:"වැඩි short leave ගණන් ගන්නේ",medQ:"වසරකට medical",casQ:"වසරකට casual",tiers:"Incentive කප්පාදු (නිවාඩු:% )",
+hint:"half day 2ක් = නිවාඩුවක්. Duty leave ගණන් ගන්නේ නැහැ. Free ඒවාට වඩා short leave ඉහත අගයට ගණන් ගනී.",
+none:"දත්ත නැහැ. ඉහළින් එක් කරන්න හෝ උදාහරණය load කරන්න.",leaves:"ගණන් ගත් නිවාඩු",incen:"Incentive",otE:"උපයපු OT",otP:"මේ මාසේ ලැබුණු OT",bt:"Bata",bs:"මූලික",co:"ජීවන වියදම",full:"සම්පූර්ණ වැටුප",pend:"ලැබීමට ඇති OT",bal:"නිවාඩු ශේෂය",used:"භාවිත",left:"ඉතිරි",tot:"එකතුව",hrs:"පැය",disc:"අඩු",foot:"ඔබේ දත්ත ගබඩා වන්නේ මේ browser එකේ පමණි. කිසිවක් upload වන්නේ නැහැ.",copied:"Copy වුණා!",conf:"සියල්ල මකන්නද?",month:"මාසය",sSync:"📅 Google Calendar එකෙන් ගන්න",lFrom:"මාසයෙන්",lTo:"මාසය දක්වා",sync:"දැන් Sync කරන්න",nomcp:"Calendar sync වැඩ කරන්නේ Google Calendar connector එක සම්බන්ධ කර claude.ai තුළ මේ පිටුව විවෘත කළොත් පමණි. අතින්ද දත්ත එක් කළ හැක.",badrange:"නිවැරදි මාස පරාසයක් තෝරන්න.",syncing:"Sync වෙමින්…",synced:"දත්ත ගත්තා",more:"Events ගොඩක් තියෙනවා - පරාසය අඩු කරන්න.",err_needs_reauth:"claude.ai හි Google Calendar නැවත සම්බන්ධ කරන්න.",err_server_not_connected:"Google Calendar සම්බන්ධ නැහැ. claude.ai හි connector එක එක් කරන්න.",err_approval_required:"ඉල්ලූ විට Calendar access ඉඩ දී නැවත Sync කරන්න.",err_x:"Calendar එක කියවන්න බැරි වුණා. ටිකකින් නැවත උත්සාහ කරන්න.",kwmed:"Medical වචන",kwcas:"Casual වචන",kwhalf:"Half day වචන",kwshort:"Short leave වචන",kwduty:"Duty leave වචන",kwot:"OT වචන (පැය = මාතෘකාවේ අංකය)",kwbata:"Bata වචන (bata, trail)",lCid:"Google OAuth Client ID (ඔයාගේම - setup පියවර බලන්න)",needcid:"මුලින්ම ඉහළින් Google OAuth Client ID එක දාන්න.",nogsi:"Google sign-in script එක load වුණේ නැහැ. Internet එක බලන්න, https ලිපිනයකින් open කරන්න.",err_auth:"Google sign-in අවලංගු වුණා හෝ ප්‍රතික්ෂේප වුණා.",err_http401:"Google sign-in කල් ඉකුත් වුණා. නැවත Sync කරන්න.",err_http403:"මේ project එකට Calendar API enable කරලා නැහැ, නැත්නම් access ප්‍රතික්ෂේප වුණා.",gT:"ඔබේම වැටුප් ගණකය",gX:"ඔබේ Gmail එකෙන් sign in වී ඔබේ තොරතුරු සුරකින්න, නිවාඩු සහ OT එක් කරන්න, ඕනම device එකකින් මාසික වැටුප බලන්න.",gb:"Google මගින් Sign in",out:"Sign out",welcome:"සාදරයෙන් පිළිගන්නවා! පහත ඔබේ වැටුප් තොරතුරු පුරවා, entries එක් කරන්න හෝ Google Calendar එකෙන් sync කරන්න.",saveerr:"Cloud එකට සුරකින්න බැරි වුණා.",needcloud:"මේ app එකේ sign-in setup කරලා නැහැ.",nocloud:"Cloud sign-in setup කරලා නැහැ - දත්ත ගබඩා වන්නේ මේ browser එකේ පමණි."}};
+const TY=["med","cas","half","short","duty","ot","bata"],SK=["basic","cola","inc","otRate","bataRate","otDelay","freeLeaves","freeShort","extraShort","medQ","casQ","tiers","kwmed","kwcas","kwhalf","kwshort","kwduty","kwot","kwbata"];const isT=k=>k==="tiers"||k.startsWith("kw");
+const DS={cid:"",basic:50000,cola:15000,inc:3000,otRate:150,bataRate:700,otDelay:2,freeLeaves:2,freeShort:2,extraShort:0.5,medQ:24,casQ:21,tiers:"3:10,4:25,5:50,6:100",kwmed:"medical",kwcas:"casual",kwhalf:"half",kwshort:"short",kwduty:"duty",kwot:"ot",kwbata:"bata,trail,trial"};
+let mcp=null,SM="",user=null,cloud=false,sT;let lang="en",S={...DS},E=[],id0=1;
+const $=i=>document.getElementById(i),t=k=>L[lang][k],esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const fmt=n=>"Rs."+Math.round(n).toLocaleString("en-US");
+function load(){try{const j=JSON.parse(localStorage.getItem("sal1")||"null");if(j){S={...DS,...j.S};E=j.E||[];lang=j.lang||"en";id0=Math.max(1,...E.map(e=>e.id+1))}}catch(e){}}
+function save(){if(cloud){if(!user)return;clearTimeout(sT);sT=setTimeout(()=>FB.save({S,E,lang,name:user.displayName||""}).catch(()=>setMsg(t("saveerr"))),600)}else{try{localStorage.setItem("sal1",JSON.stringify({S,E,lang}))}catch(e){}}}
+const mk=d=>d.slice(0,7),addM=(k,n)=>{let[y,m]=k.split("-").map(Number);m+=n-1;y+=Math.floor(m/12);m=((m%12)+12)%12;return y+"-"+String(m+1).padStart(2,"0")};
+const mName=k=>new Date(k+"-15").toLocaleString(lang==="si"?"en":"en",{month:"long",year:"numeric"});
+function agg(){const B={};E.forEach(e=>{const k=mk(e.d);B[k]=B[k]||{med:0,cas:0,half:0,short:0,duty:0,ot:0,bata:0,items:[]};B[k][e.t]+=e.t==="ot"?e.h:1;B[k].items.push(e)});return B}
+function tiers(){return S.tiers.split(",").map(x=>x.split(":").map(Number)).filter(a=>a.length==2&&!isNaN(a[0])&&!isNaN(a[1])).sort((a,b)=>a[0]-b[0])}
+function calc(B,k){const m=B[k]||{med:0,cas:0,half:0,short:0,duty:0,ot:0,bata:0};
+const lv=m.med+m.cas+m.half*.5+Math.max(0,m.short-S.freeShort)*S.extraShort;
+let d=0;if(lv>S.freeLeaves)tiers().forEach(([n,p])=>{if(lv>=n)d=p});d=Math.min(100,d);
+const inc=S.inc*(1-d/100),otE=m.ot*S.otRate,pm=(B[addM(k,-S.otDelay)]||{}).ot||0,otP=pm*S.otRate,bt=m.bata*S.bataRate;
+return{m,lv,d,inc,otE,otP,bt,total:+S.basic+ +S.cola+inc+otP+bt}}
+function render(){
+$("ttl").textContent=t("ttl");["gT","gX","gb","out","sSet","sSync","lFrom","lTo","sync","sAdd","sList","lDate","lType","lHrs","lNote","add","ex","clr","pr","cp","hint","foot"].forEach(i=>$(i).textContent=t(i));$("lg").textContent=lang==="en"?"සිංහල":"English";
+$("t").innerHTML=TY.map(k=>`<option value="${k}">${t(k)}</option>`).join("");$("hw").style.display=$("t").value==="ot"?"":"none";
+$("set").innerHTML=SK.map(k=>`<div><label>${t(k)}</label><input data-k="${k}" value="${esc(S[k])}" ${isT(k)?"":'type="number" step="any"'}></div>`).join("");
+document.querySelectorAll("[data-k]").forEach(i=>i.onchange=()=>{S[i.dataset.k]=isT(i.dataset.k)?i.value:(parseFloat(i.value)||0);save();render()});
+const es=[...E].sort((a,b)=>a.d<b.d?1:-1);
+$("list").innerHTML=es.length?es.map(e=>`<div class="ent"><span><b>${e.d}</b>${e.src?" 📅":""} <span class="tag">${t(e.t)}${e.t==="ot"?" "+e.h+" "+t("hrs"):""}</span> <span class="mu">${esc(e.n||"")}</span></span><button class="x" data-del="${e.id}">✕</button></div>`).join(""):`<p class="mu">${t("none")}</p>`;
+document.querySelectorAll("[data-del]").forEach(b=>b.onclick=()=>{E=E.filter(e=>e.id!=b.dataset.del);save();render()});
+const B=agg(),ks=Object.keys(B).sort();let h="";
+if(ks.length){const all=[];for(let k=ks[0];k<=ks[ks.length-1];k=addM(k,1))all.push(k);let T=0,sum="";
+all.forEach(k=>{const c=calc(B,k);T+=c.total;
+h+=`<div class="card"><h2>${mName(k)}</h2>`;
+const R=(a,b)=>`<div class="row"><span>${a}</span><span>${b}</span></div>`;
+h+=R(t("bs"),fmt(S.basic))+R(t("co"),fmt(S.cola))+R(t("incen")+` <span class="mu">(${t("leaves")}: ${c.lv}${c.d?`, -${c.d}% ${t("disc")}`:""})</span>`,fmt(c.inc))+R(t("otP")+` <span class="mu">(${t("otE")}: ${c.m.ot} ${t("hrs")} = ${fmt(c.otE)})</span>`,fmt(c.otP))+R(t("bt")+` <span class="mu">(${c.m.bata})</span>`,fmt(c.bt));
+h+=`<div class="row"><b>${t("full")}</b><span class="tot">${fmt(c.total)}</span></div>`;
+const cn=TY.filter(x=>x!=="ot"&&c.m[x]).map(x=>`${t(x)}: ${c.m[x]}`).join(" · ");
+h+=`<div class="mu">${cn||"—"}</div></div>`;sum+=`${mName(k)}: ${fmt(c.total)} (${t("leaves")} ${c.lv}, ${t("incen")} ${fmt(c.inc)}, OT ${fmt(c.otP)})\n`});
+h+=`<div class="card"><div class="row"><b>${t("tot")}</b><span class="tot">${fmt(T)}</span></div></div>`;
+const last=ks[ks.length-1],pend=[];for(let i=0;i<=S.otDelay;i++){const k=addM(last,i),o=(B[addM(k,-S.otDelay)]||{}).ot||0;if(i>0&&o)pend.push([k,o])}
+const pk=ks.filter(k=>B[k].ot&&addM(k,S.otDelay)>last).map(k=>[addM(k,S.otDelay),B[k].ot]);
+if(pk.length)h+=`<div class="card"><h2>${t("pend")}</h2>`+pk.map(([k,o])=>`<div class="row"><span>${mName(k)}</span><span>${o} ${t("hrs")} = ${fmt(o*S.otRate)}</span></div>`).join("")+`</div>`;
+const yr=last.slice(0,4);let mu=0,cu=0;E.filter(e=>e.d.startsWith(yr)).forEach(e=>{if(e.t==="med")mu++;if(e.t==="cas")cu++;if(e.t==="half")cu+=.5});
+h+=`<div class="card"><h2>${t("bal")} ${yr}</h2><div class="row"><span>${t("med")}</span><span>${mu}/${S.medQ} · ${S.medQ-mu} ${t("left")}</span></div><div class="row"><span>${t("cas")}</span><span>${cu}/${S.casQ} · ${S.casQ-cu} ${t("left")}</span></div></div>`;
+window._sum=sum+`${t("tot")}: ${fmt(T)}`}
+$("res").innerHTML=h;$("syncMsg").textContent=SM;$("who").textContent=user?(user.displayName||user.email||""):"";$("out").style.display=user?"":"none";const gt=cloud&&!user;$("gate").style.display=gt?"":"none";$("app").style.display=gt?"none":"";if(!cloud)$("foot").textContent+=" "+t("nocloud")}
+$("t").onchange=()=>$("hw").style.display=$("t").value==="ot"?"":"none";
+$("add").onclick=()=>{const d=$("d").value;if(!d)return $("d").focus();const ty=$("t").value;E.push({id:id0++,d,t:ty,h:ty==="ot"?parseFloat($("h").value)||0:0,n:$("n").value});$("n").value="";save();render()};
+$("lg").onclick=()=>{lang=lang==="en"?"si":"en";save();render()};
+$("clr").onclick=()=>{if(confirm(t("conf"))){E=[];save();render()}};
+$("pr").onclick=()=>window.print();
+$("cp").onclick=async()=>{try{await navigator.clipboard.writeText(window._sum||"");$("cp").textContent=t("copied");setTimeout(render,1200)}catch(e){}};
+$("ex").onclick=()=>{S={...S,basic:50630,cola:17800,inc:3800};const x=[["2026-08-04","med"],["2026-08-10","med"],["2026-08-17","med"],["2026-08-05","bata"],["2026-10-14","med"],["2026-10-26","med"],["2026-10-27","med"],["2026-10-19","ot",18],["2026-10-23","ot",30],["2026-10-24","bata"],["2026-11-02","med"],["2026-11-13","med"],["2026-11-18","short"],["2026-11-04","ot",18]];
+E=x.map(a=>({id:id0++,d:a[0],t:a[1],h:a[2]||0,n:""}));save();render()};
+
+const has=(x,l)=>l.split(",").map(v=>v.trim().toLowerCase()).filter(Boolean).some(k=>k.length<=2?new RegExp("\\b"+k+"\\b").test(x):x.includes(k));
+function classify(a,d){a=a.toLowerCase();for(const k of ["duty","med","cas","half","short","ot"])if(has(a,S["kw"+k]))return k;return has(a+" "+d.toLowerCase(),S.kwbata)?"bata":null}
+function setMsg(x){SM=x;$("syncMsg").textContent=x}
+async function sync(){const f=$("mf").value,to=$("mt").value;if(!cloud||!user)return setMsg(t("needcloud"));if(!f||!to||f>to)return setMsg(t("badrange"));setMsg(t("syncing"));
+try{const tk=FB.token()||await FB.login(),a=new Date(f+"-01T00:00:00").toISOString(),b=new Date(+to.slice(0,4),+to.slice(5,7),1).toISOString();let ev=[],pt="";
+for(let i=0;i<10;i++){const u="https://www.googleapis.com/calendar/v3/calendars/primary/events?singleEvents=true&orderBy=startTime&maxResults=250&timeMin="+encodeURIComponent(a)+"&timeMax="+encodeURIComponent(b)+(pt?"&pageToken="+encodeURIComponent(pt):"");
+const r=await fetch(u,{headers:{Authorization:"Bearer "+tk}});if(!r.ok){if(r.status===401)FB.clear();throw{code:"http"+r.status}}const j=await r.json();ev=ev.concat(j.items||[]);pt=j.nextPageToken;if(!pt)break}
+const out=[];
+ev.forEach(e=>{const s=e.summary||"",ds=e.description||"",ty=classify(s,ds),st=e.start||{},sd=(st.date||st.dateTime||"").slice(0,10);if(!ty||!sd)return;
+let days=[sd];if(st.date&&e.end&&e.end.date){days=[];let d=new Date(sd+"T00:00:00Z");const ed=new Date(e.end.date+"T00:00:00Z");while(d<ed&&days.length<31){days.push(d.toISOString().slice(0,10));d=new Date(d.getTime()+864e5)}}
+const hm=s.match(/(\d+(?:\.\d+)?)/);
+days.forEach(d=>{if(mk(d)>=f&&mk(d)<=to)out.push({id:id0++,d,t:ty,h:ty==="ot"?(hm?+hm[1]:0):0,n:s+(ds?" - "+ds:""),src:"cal"})})});
+E=E.filter(x=>!(x.src==="cal"&&mk(x.d)>=f&&mk(x.d)<=to)).concat(out);save();render();setMsg(out.length+" "+t("synced"))}
+catch(e){const c=String(e&&e.code);setMsg(t("err_"+c)||t(c.startsWith("auth/")?"err_auth":"err_x"))}}
+$("sync").onclick=sync;
+const td=new Date().toISOString().slice(0,7);$("mt").value=td;$("mf").value=addM(td,-3);
+$("gb").onclick=()=>FB.login().catch(()=>{});$("out").onclick=()=>FB.logout();
+function init(){if(window.FB){cloud=true;FB.on((u,d)=>{user=u;S={...DS};E=[];if(u&&d){S={...DS,...d.S};E=d.E||[];lang=d.lang||lang;id0=Math.max(1,...E.map(e=>e.id+1))}render();if(u&&!d){$("setd").open=true;setMsg(t("welcome"));save()}})}else{load();render()}}
+if(window.FB)init();else addEventListener("fbready",init,{once:true});
+</script>
+<script type="module">
+(async()=>{try{const c=window.FIREBASE_CONFIG;if(c&&c.apiKey&&!/^PASTE/.test(c.apiKey)){
+const V="https://www.gstatic.com/firebasejs/10.12.2/";
+const [{initializeApp},A,F]=await Promise.all([import(V+"firebase-app.js"),import(V+"firebase-auth.js"),import(V+"firebase-firestore.js")]);
+const app=initializeApp(c),auth=A.getAuth(app),db=F.getFirestore(app),pr=new A.GoogleAuthProvider();pr.addScope("https://www.googleapis.com/auth/calendar.readonly");let token=null;
+window.FB={login:async()=>{const r=await A.signInWithPopup(auth,pr),cr=A.GoogleAuthProvider.credentialFromResult(r);token=cr&&cr.accessToken||null;return token},logout:()=>A.signOut(auth),token:()=>token,clear:()=>{token=null},
+on:cb=>A.onAuthStateChanged(auth,async u=>{if(!u)return cb(null,null);let d=null;try{const s=await F.getDoc(F.doc(db,"users",u.uid));d=s.exists()?s.data():null}catch(e){}cb(u,d)}),
+save:d=>F.setDoc(F.doc(db,"users",auth.currentUser.uid),d)}}}catch(e){console.error(e)}
+window.dispatchEvent(new Event("fbready"))})();
+</script></body></html>
