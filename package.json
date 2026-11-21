@@ -1,0 +1,19 @@
+{
+  "name": "salary-pro-ultimate",
+  "version": "3.2.0",
+  "private": true,
+  "description": "Salary Pro Ultimate V3.2 - PWA and Capacitor Android/iOS project",
+  "scripts": {
+    "cap:sync": "cap sync",
+    "android": "cap open android",
+    "ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  }
+}
