@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "991198165482",
+    "project_id": "railway-salary-calculato-1fd86",
+    "storage_bucket": "railway-salary-calculato-1fd86.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:991198165482:android:57330e12b1b0735c679a93",
+        "android_client_info": {
+          "package_name": "lk.salarypro.ultimate"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "991198165482-35lm14qubv7o4tq3uqoj22kik3egcfdj.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyChIys990heOC7BGKCZWR90ybega1e3GSs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "991198165482-35lm14qubv7o4tq3uqoj22kik3egcfdj.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
