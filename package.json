@@ -6,7 +6,8 @@
   "scripts": {
     "cap:sync": "cap sync",
     "android": "cap open android",
-    "ios": "cap open ios"
+    "ios": "cap open ios",
+    "build:native-auth": "esbuild src/native-auth.js --bundle --format=iife --platform=browser --outfile=www/native-auth.js"
   },
   "dependencies": {
     "@capacitor/android": "^7.0.0",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^7.0.0",
-    "@capacitor/ios": "^7.0.0"
+    "@capacitor/ios": "^7.0.0",
+    "esbuild": "^0.25.0"
   }
 }
