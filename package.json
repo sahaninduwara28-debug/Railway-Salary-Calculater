@@ -1,0 +1,21 @@
+{
+  "name": "salary-pro-ultimate",
+  "version": "3.2.1",
+  "private": true,
+  "description": "Salary Pro Ultimate V3.2.1 - offline-first web app with Capacitor native authentication",
+  "scripts": {
+    "cap:sync": "cap sync",
+    "android": "cap open android",
+    "ios": "cap open ios"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0",
+    "@capacitor-firebase/authentication": "7.5.0",
+    "firebase": "^11.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0",
+    "@capacitor/ios": "^7.0.0"
+  }
+}
