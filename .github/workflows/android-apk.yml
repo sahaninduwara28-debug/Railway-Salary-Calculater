@@ -37,7 +37,13 @@ jobs:
           if [ ! -d android ]; then
             npx cap add android
           fi
-
+          
+      - name: Generate Android app icons
+        run: |
+          mkdir -p assets
+          cp icon.png assets/icon.png
+          npx --yes @capacitor/assets generate --android --assetPath assets
+          
       - name: Configure Firebase
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
