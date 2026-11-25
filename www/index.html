@@ -338,10 +338,93 @@ const unb64u=t=>Uint8Array.from(atob(t.replace(/-/g,'+').replace(/_/g,'/')),c=>c
 const getBio=()=>{try{return JSON.parse(localStorage.salaryProBio||'null')}catch{return null}};
 const hasLock=()=>!!(localStorage.salaryProPin||getBio());
 function derToRaw(sig){const b=new Uint8Array(sig);let i=2;if(b[1]&0x80)i+=b[1]&0x7f;const take=()=>{if(b[i]!==2)throw new Error('Bad signature');const l=b[i+1];let v=b.slice(i+2,i+2+l);i+=2+l;while(v.length>32&&v[0]===0)v=v.slice(1);const o=new Uint8Array(32);o.set(v,32-v.length);return o};const r=take(),t=take(),raw=new Uint8Array(64);raw.set(r);raw.set(t,32);return raw}
-async function enableBiometric(){if(!window.PublicKeyCredential||!navigator.credentials)return alert('Fingerprint/face unlock is not supported in this browser. Open the app over HTTPS in Chrome.');try{if(PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable&&!await PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable())return alert('Set up a fingerprint, face or screen lock in your phone settings first.')}catch{}
-bioBusy=true;try{const c=await navigator.credentials.create({publicKey:{challenge:crypto.getRandomValues(new Uint8Array(32)),rp:{name:'Salary Pro'},user:{id:crypto.getRandomValues(new Uint8Array(16)),name:'salary-pro-user',displayName:'Salary Pro'},pubKeyCredParams:[{type:'public-key',alg:-7}],authenticatorSelection:{authenticatorAttachment:'platform',userVerification:'required',residentKey:'discouraged'},timeout:60000}});const spki=c.response.getPublicKey&&c.response.getPublicKey();if(!spki)throw new Error('This browser cannot export the passkey public key');localStorage.salaryProBio=JSON.stringify({id:b64u(c.rawId),pk:b64u(spki)});alert('Fingerprint/face unlock enabled. The app will ask for it when you open it, when the screen turns on again, and after you sign in.')}catch(e){alert('Biometric setup failed: '+e.message)}finally{setTimeout(()=>bioBusy=false,1500)}}
-async function unlockBio(){const cfg=getBio();if(!cfg){unlockErr.textContent='Fingerprint/face is not enabled. Use your PIN.';unlockPin.focus();return}if(bioBusy)return;bioBusy=true;try{const ch=crypto.getRandomValues(new Uint8Array(32));const a=await navigator.credentials.get({publicKey:{challenge:ch,allowCredentials:[{type:'public-key',id:unb64u(cfg.id),transports:['internal']}],userVerification:'required',timeout:60000}});const r=a.response,cd=JSON.parse(new TextDecoder().decode(r.clientDataJSON));if(cd.type!=='webauthn.get'||cd.challenge!==b64u(ch)||cd.origin!==location.origin)throw new Error('Challenge check failed');const ad=new Uint8Array(r.authenticatorData);if(!(ad[32]&4))throw new Error('Fingerprint/face check was not performed');const rp=new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(location.hostname)));if(!rp.every((v,i)=>v===ad[i]))throw new Error('Wrong site');const key=await crypto.subtle.importKey('spki',unb64u(cfg.pk),{name:'ECDSA',namedCurve:'P-256'},false,['verify']),hash=new Uint8Array(await crypto.subtle.digest('SHA-256',r.clientDataJSON)),data=new Uint8Array(ad.length+32);data.set(ad);data.set(hash,ad.length);if(!await crypto.subtle.verify({name:'ECDSA',hash:'SHA-256'},key,derToRaw(r.signature),data))throw new Error('Signature invalid');lockOverlay.classList.add('hidden');unlockErr.textContent='';unlockPin.value=''}catch(e){unlockErr.textContent='Fingerprint/face unlock failed: '+e.message}finally{setTimeout(()=>bioBusy=false,1500)}}
-function disableBiometric(){localStorage.removeItem('salaryProBio');localStorage.removeItem('salaryProBioId');alert('Fingerprint/face unlock turned off for this device.')}
+async function enableBiometric() {
+  const bio = window.BiometricAuth;
+
+  if (!bio || !bio.checkBiometry || !bio.authenticate) {
+    alert('Biometric plugin not loaded. Please rebuild the app.');
+    return;
+  }
+
+  if (!window.Capacitor?.isNativePlatform?.()) {
+    alert('Fingerprint/face unlock is available in the installed Android app.');
+    return;
+  }
+
+  bioBusy = true;
+  try {
+    const info = await bio.checkBiometry();
+
+    if (!info.isAvailable) {
+      alert('Fingerprint/face is not available. Please register your fingerprint or face in phone settings first.');
+      return;
+    }
+
+    localStorage.setItem(
+      'salaryProBio',
+      JSON.stringify({ native: true })
+    );
+
+    alert('Fingerprint/face unlock enabled successfully!');
+  } catch (e) {
+    alert('Biometric setup failed: ' + (e.message || e));
+  } finally {
+    bioBusy = false;
+  }
+}
+
+async function unlockBio() {
+  const cfg = getBio();
+
+  if (!cfg) {
+    unlockErr.textContent = 'Fingerprint/face is not enabled. Use your PIN.';
+    unlockPin.focus();
+    return;
+  }
+
+  if (!cfg.native) {
+    unlockErr.textContent = 'Please enable fingerprint/face again.';
+    return;
+  }
+
+  if (bioBusy) return;
+  bioBusy = true;
+
+  try {
+    const bio = window.BiometricAuth;
+
+    if (!bio) {
+      throw new Error('Biometric plugin not loaded. Rebuild the app.');
+    }
+
+    await bio.authenticate({
+      reason: 'Unlock Salary Pro',
+      cancelTitle: 'Cancel',
+      allowDeviceCredential: false,
+      androidTitle: 'Salary Pro',
+      androidSubtitle: 'Verify your identity',
+      androidConfirmationRequired: false
+    });
+
+    lockOverlay.classList.add('hidden');
+    unlockErr.textContent = '';
+    unlockPin.value = '';
+
+  } catch (e) {
+    unlockErr.textContent =
+      'Fingerprint/face unlock failed: ' + (e.message || e);
+  } finally {
+    bioBusy = false;
+  }
+}
+
+function disableBiometric() {
+  localStorage.removeItem('salaryProBio');
+  localStorage.removeItem('salaryProBioId');
+  alert('Fingerprint/face unlock turned off for this device.');
+}
+
+ {localStorage.removeItem('salaryProBio');localStorage.removeItem('salaryProBioId');alert('Fingerprint/face unlock turned off for this device.')}
 const DEFAULT_FIREBASE_CONFIG={apiKey:"AIzaSyBSH3lIizj6C-nvhabq_vnZ_ZvcunOvhbc",authDomain:"railway-salary-calculato-1fd86.firebaseapp.com",projectId:"railway-salary-calculato-1fd86",storageBucket:"railway-salary-calculato-1fd86.firebasestorage.app",messagingSenderId:"991198165482",appId:"1:991198165482:web:60a20d85414c8702679a93"};
 // Capacitor native Firebase Authentication bridge. The native plugin is installed by package.json.
 const isNativeCapacitor=()=>!!(window.Capacitor&&typeof window.Capacitor.isNativePlatform==='function'&&window.Capacitor.isNativePlatform());
