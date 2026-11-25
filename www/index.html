@@ -388,7 +388,35 @@ function downloadRawRecovery(){const raw=localStorage.getItem('salaryProRecovery
 function backup(){let blob=new Blob([JSON.stringify({exportedAt:new Date().toISOString(),state},null,2)],{type:'application/json'});downloadBlob(blob,'salary-pro-backup-'+month()+'.json')}function restoreBackup(ev){let f=ev.target.files?.[0];if(!f)return;if(Number.isFinite(f.size)&&f.size>10*1024*1024){ev.target.value='';return alert('Backup file is too large (maximum 10 MB)')}let rd=new FileReader();rd.onload=()=>{const previous=state;try{const data=JSON.parse(rd.result);if(!isPlainObject(data))throw new Error('Invalid backup file format');const raw=data.state||data;const next=normalizeState(raw,{requireEntries:true});state=next;if(!persist()){state=previous;return}buildSettings();loadProfile();render();alert('Backup restored successfully. The previous local data was replaced.')}catch(e){state=previous;alert('Backup was not restored: '+e.message)}finally{ev.target.value=''}};rd.onerror=()=>{ev.target.value='';alert('Could not read the backup file')};rd.readAsText(f)}function exportCSV(){let all=[['Month','Date','Type','Hours','Note'],...state.entries.map(e=>[e.date.slice(0,7),e.date,labelType(e.type),e.hours||'',e.note||''])];let csv=all.map(row=>row.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');downloadBlob(new Blob([csv],{type:'text/csv;charset=utf-8'}),'salary-pro-entries.csv')}function downloadBlob(blob,name){let a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000)}
 // PIN protection: local PIN hash. For best security, use a unique PIN and device lock.
 async function hashPin(p,salt){if(!crypto?.subtle)throw new Error('Web Crypto unavailable');const enc=new TextEncoder(),raw=await crypto.subtle.importKey('raw',enc.encode(p),'PBKDF2',false,['deriveBits']);if(salt&&!/^[a-f0-9]{32}$/i.test(salt))throw new Error('Invalid PIN salt');const saltBytes=salt?Uint8Array.from(salt.match(/.{2}/g).map(v=>parseInt(v,16))):crypto.getRandomValues(new Uint8Array(16)),bits=await crypto.subtle.deriveBits({name:'PBKDF2',salt:saltBytes,iterations:150000,hash:'SHA-256'},raw,256);return {salt:Array.from(saltBytes).map(v=>v.toString(16).padStart(2,'0')).join(''),hash:Array.from(new Uint8Array(bits)).map(v=>v.toString(16).padStart(2,'0')).join('')}}
-async function setPin(){if(!crypto?.subtle)return alert('PIN hashing is unavailable in this browser. Open the app in a modern browser over HTTPS or localhost.');const p=prompt('Set a 6-digit PIN');if(p===null)return;if(!/^\d{6}$/.test(p))return alert('PIN must be exactly 6 digits');try{const h=await hashPin(p);localStorage.salaryProPin=JSON.stringify(h);alert('PIN saved using PBKDF2. PIN lock is a convenience barrier, not data encryption.');if(confirm('Lock the app now?'))lockApp()}catch(e){alert('Could not set PIN: '+e.message)}}
+async function setPin() {
+  if (!crypto?.subtle) {
+    return alert('PIN hashing is unavailable in this browser.');
+  }
+
+  const p = prompt('Set a 6-digit PIN');
+  if (p === null) return;
+
+  if (!/^\d{6}$/.test(p)) {
+    return alert('PIN must be exactly 6 digits');
+  }
+
+  try {
+    const h = await hashPin(p);
+
+    localStorage.salaryProPin = JSON.stringify(h);
+    localStorage.setItem('salaryProLockEnabled', '1');
+
+    renderLockSettings();
+
+    alert('PIN saved successfully. App Lock is now enabled.');
+
+    if (confirm('Lock the app now?')) {
+      lockApp();
+    }
+  } catch (e) {
+    alert('Could not set PIN: ' + e.message);
+  }
+}
 function lockApp(){if(!hasLock())return alert('Set a PIN or enable fingerprint/face first');lockOverlay.classList.remove('hidden');unlockPin.value='';unlockErr.textContent=''}
 async function legacyPinHash(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function unlock(){const pin=unlockPin.value,sec=state.security,now=Date.now();if(sec.lockUntil&&now<sec.lockUntil){unlockErr.textContent='Too many attempts. Try again later.';return}try{const saved=localStorage.salaryProPin;let parsed=null,valid=false;try{parsed=JSON.parse(saved)}catch{}if(parsed&&typeof parsed.salt==='string'&&/^[a-f0-9]{32}$/i.test(parsed.salt)&&typeof parsed.hash==='string'&&/^[a-f0-9]{64}$/i.test(parsed.hash)&&/^\d{6}$/.test(pin)){const h=await hashPin(pin,parsed.salt);valid=h.hash===parsed.hash}else if(typeof saved==='string'&&/^[a-f0-9]{64}$/i.test(saved)&&/^\d{6}$/.test(pin)){valid=(await legacyPinHash(pin))===saved;if(valid){try{localStorage.salaryProPin=JSON.stringify(await hashPin(pin))}catch(migrationError){console.warn('Legacy PIN verified but could not be upgraded:',migrationError)}}}if(valid){lockOverlay.classList.add('hidden');unlockErr.textContent='';sec.failures=0;sec.lockUntil=0;persist()}else{sec.failures=(sec.failures||0)+1;if(sec.failures>=5){sec.lockUntil=Date.now()+60000;sec.failures=0;unlockErr.textContent='Locked for 60 seconds after failed attempts.'}else unlockErr.textContent='Incorrect PIN ('+(5-sec.failures)+' attempts remaining)';persist()}}catch(e){unlockErr.textContent='PIN verification failed: '+e.message}}
