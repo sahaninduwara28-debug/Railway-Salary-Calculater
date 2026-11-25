@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "991198165482-bc13nidmh7t2jqk1eehqrb8v8bocqdcs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "lk.salarypro.ultimate",
+            "certificate_hash": "87419d88e8724f17ed5936852adc24bc312a26ac"
+          }
+        },
+        {
           "client_id": "991198165482-35lm14qubv7o4tq3uqoj22kik3egcfdj.apps.googleusercontent.com",
           "client_type": 3
         }
