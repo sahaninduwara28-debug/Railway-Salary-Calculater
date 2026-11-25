@@ -569,9 +569,13 @@ async function enableBiometric() {
     }
 
     localStorage.setItem(
-      'salaryProBio',
-      JSON.stringify({ native: true })
-    );
+  'salaryProBio',
+  JSON.stringify({ native: true })
+);
+
+localStorage.setItem('salaryProLockEnabled', '1');
+
+renderLockSettings();
 
     alert('Fingerprint/face unlock enabled successfully!');
   } catch (e) {
