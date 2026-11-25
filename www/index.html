@@ -672,5 +672,32 @@ updateLiveClock();setInterval(updateLiveClock,1000);setInterval(()=>autoCalendar
 if('serviceWorker' in navigator && (location.protocol==='https:'||location.hostname==='localhost')){window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(err=>console.warn('Service worker unavailable:',err)));}
 
 // Auto lock on reload if PIN configured; basic convenience lock, not protection against browser storage access.
-if(hasLock()){lockOverlay.classList.remove('hidden');if(getBio())setTimeout(unlockBio,600)}document.addEventListener('visibilitychange',()=>{if(!hasLock())return;if(document.hidden){if(!bioBusy)lockOverlay.classList.remove('hidden')}else if(!lockOverlay.classList.contains('hidden')&&getBio())setTimeout(unlockBio,300)});buildSettings();loadProfile();render();renderPaysheets();if(startupDataError){const w=document.getElementById('startupWarning'),t=document.getElementById('startupWarningText');if(w)w.classList.remove('hidden');if(t)t.textContent=startupDataError}loadFirebase();
+// App Lock startup and inactivity handling
+if (isAppLockEnabled()) {
+  lockOverlay.classList.remove('hidden');
+
+  if (getBio()) {
+    setTimeout(unlockBio, 600);
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (!isAppLockEnabled()) return;
+
+  if (document.hidden) {
+    clearTimeout(autoLockTimer);
+    return;
+  }
+
+  if (!lockOverlay.classList.contains('hidden')) {
+    if (getBio()) {
+      setTimeout(unlockBio, 300);
+    }
+    return;
+  }
+
+  if (isAutoLockEnabled()) {
+    scheduleAutoLock();
+  }
+}); )buildSettings();loadProfile();render();renderPaysheets();if(startupDataError){const w=document.getElementById('startupWarning'),t=document.getElementById('startupWarningText');if(w)w.classList.remove('hidden');if(t)t.textContent=startupDataError}loadFirebase();
 </script></body></html>
