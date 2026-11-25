@@ -417,7 +417,20 @@ async function setPin() {
     alert('Could not set PIN: ' + e.message);
   }
 }
-function lockApp(){if(!hasLock())return alert('Set a PIN or enable fingerprint/face first');lockOverlay.classList.remove('hidden');unlockPin.value='';unlockErr.textContent=''}
+function lockApp() {
+  if (!hasLock()) {
+    return alert('Set a PIN or enable fingerprint/face first.');
+  }
+
+  if (!isAppLockEnabled()) {
+    return alert('Please enable App Lock first.');
+  }
+
+  clearTimeout(autoLockTimer);
+  lockOverlay.classList.remove('hidden');
+  unlockPin.value = '';
+  unlockErr.textContent = '';
+}
 async function legacyPinHash(p){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(p));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
 async function unlock(){const pin=unlockPin.value,sec=state.security,now=Date.now();if(sec.lockUntil&&now<sec.lockUntil){unlockErr.textContent='Too many attempts. Try again later.';return}try{const saved=localStorage.salaryProPin;let parsed=null,valid=false;try{parsed=JSON.parse(saved)}catch{}if(parsed&&typeof parsed.salt==='string'&&/^[a-f0-9]{32}$/i.test(parsed.salt)&&typeof parsed.hash==='string'&&/^[a-f0-9]{64}$/i.test(parsed.hash)&&/^\d{6}$/.test(pin)){const h=await hashPin(pin,parsed.salt);valid=h.hash===parsed.hash}else if(typeof saved==='string'&&/^[a-f0-9]{64}$/i.test(saved)&&/^\d{6}$/.test(pin)){valid=(await legacyPinHash(pin))===saved;if(valid){try{localStorage.salaryProPin=JSON.stringify(await hashPin(pin))}catch(migrationError){console.warn('Legacy PIN verified but could not be upgraded:',migrationError)}}}if(valid){lockOverlay.classList.add('hidden');unlockErr.textContent='';sec.failures=0;sec.lockUntil=0;persist()}else{sec.failures=(sec.failures||0)+1;if(sec.failures>=5){sec.lockUntil=Date.now()+60000;sec.failures=0;unlockErr.textContent='Locked for 60 seconds after failed attempts.'}else unlockErr.textContent='Incorrect PIN ('+(5-sec.failures)+' attempts remaining)';persist()}}catch(e){unlockErr.textContent='PIN verification failed: '+e.message}}
 // Biometric unlock: WebAuthn platform passkey (fingerprint/face). The assertion signature, challenge, origin, rpId hash and user-verification flag are all verified locally. Like the PIN, this is a convenience barrier on this device, not data encryption.
