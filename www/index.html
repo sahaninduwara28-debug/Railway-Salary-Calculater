@@ -628,8 +628,11 @@ async function unlockBio() {
     });
 
     lockOverlay.classList.add('hidden');
-    unlockErr.textContent = '';
-    unlockPin.value = '';
+unlockErr.textContent = '';
+unlockPin.value = '';
+
+localStorage.setItem('salaryProLastActivity', String(Date.now()));
+scheduleAutoLock();
 
   } catch (e) {
     unlockErr.textContent =
