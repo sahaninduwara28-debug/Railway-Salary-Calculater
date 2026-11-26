@@ -490,7 +490,12 @@ function toggleAppLock(enabled) {
   if (enabled) {
     localStorage.setItem('salaryProLastActivity', String(Date.now()));
     scheduleAutoLock();
-  } else {
+    } else {
+    localStorage.setItem('salaryProAutoLockEnabled', '0');
+
+    const autoToggle = document.getElementById('autoLockToggle');
+    if (autoToggle) autoToggle.checked = false;
+
     clearTimeout(autoLockTimer);
     lockOverlay.classList.add('hidden');
   }
