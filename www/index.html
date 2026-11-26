@@ -105,69 +105,87 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 </section>
 <section id="settings" class="tabview hidden"><div class="grid md:grid-cols-2 gap-3"><div class="card p-4"><h2 class="font-bold text-lg mb-3">Salary settings</h2><div class="grid grid-cols-2 gap-3" id="settingsForm"></div><button class="btn primary mt-4 w-full" onclick="saveSettings()">Save salary settings</button></div><div class="card p-4"><h2 class="font-bold text-lg mb-3">Security & Cloud</h2><p class="subtle text-sm mb-3">Sign in with Google to back up your data to the cloud and to import your Google Calendar. Your Firebase settings are already built in.</p><div class="space-y-2"><label class="text-xs subtle">Firebase web config (JSON)</label><textarea class="input" id="firebaseConfig" rows="5" placeholder='{"apiKey":"...","authDomain":"...","projectId":"...","appId":"..."}'></textarea><button class="btn w-full" onclick="saveFirebaseConfig()">Save Firebase config</button><div class="flex gap-2"><button class="btn primary flex-1" onclick="loginGoogle()">Sign in with Google</button><button class="btn flex-1" onclick="cloudSync()">Sync now</button></div><div class="mt-3 rounded-xl border border-[var(--line)] p-3 space-y-2"><div class="font-semibold text-sm">Email / Password sign in</div><label class="text-xs subtle" for="emailAuthEmail">Email address</label><input class="input" id="emailAuthEmail" type="email" autocomplete="username" placeholder="name@example.com"><label class="text-xs subtle" for="emailAuthPassword">Password (minimum 6 characters)</label><input class="input" id="emailAuthPassword" type="password" autocomplete="current-password" placeholder="Enter password"><div class="flex flex-wrap gap-2"><button class="btn primary flex-1" onclick="emailSignIn()">Sign in</button><button class="btn flex-1" onclick="emailSignUp()">Create account</button></div><button class="btn w-full" onclick="emailResetPassword()">Forgot password?</button><p id="emailAuthStatus" class="subtle text-xs" aria-live="polite"></p></div><button class="btn w-full mt-2" onclick="importCalendar()">Import selected month from Google Calendar</button><div id="cloudStatus" class="subtle text-xs">Cloud: not configured</div> <hr class="border-[var(--line)] my-3">
 
-<div class="rounded-xl border border-[var(--line)] p-3 space-y-4">
+<div class="rounded-2xl border border-[var(--line)] p-4 space-y-4">
 
-  <h3 class="font-bold text-sm">🔐 App Security</h3>
-
-  <div class="flex items-center justify-between gap-3">
+  <div class="flex items-center gap-3">
+    <div class="w-12 h-12 rounded-xl bg-blue-600/15 flex items-center justify-center text-2xl">🛡️</div>
     <div>
-      <div class="font-semibold text-sm">App Lock</div>
-      <p class="subtle text-xs">Enable or disable app protection</p>
+      <h3 class="font-bold text-lg">Security Center</h3>
+      <p class="subtle text-xs">Manage your app protection and security</p>
     </div>
-    <label class="relative inline-flex items-center cursor-pointer">
-      <input type="checkbox" id="appLockToggle"
-        class="sr-only peer" onchange="toggleAppLock(this.checked)">
-      <div class="w-11 h-6 bg-gray-500 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-    </label>
   </div>
 
-  <hr class="border-[var(--line)]">
+  <div class="rounded-xl border border-[var(--line)] p-3 space-y-4">
+    <div class="font-bold text-sm">🔐 Device Protection</div>
 
-  <div class="flex items-center justify-between gap-3">
-    <div>
-      <div class="font-semibold text-sm">Auto Lock</div>
-      <p class="subtle text-xs">Lock after inactivity</p>
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <div class="font-semibold text-sm">App Lock</div>
+        <p class="subtle text-xs">Protect the app with PIN or biometrics</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="appLockToggle"
+          class="sr-only peer" onchange="toggleAppLock(this.checked)">
+        <div class="w-11 h-6 bg-gray-500 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+      </label>
     </div>
-    <label class="relative inline-flex items-center cursor-pointer">
-      <input type="checkbox" id="autoLockToggle"
-        class="sr-only peer" onchange="toggleAutoLock(this.checked)">
-      <div class="w-11 h-6 bg-gray-500 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
-    </label>
+
+    <hr class="border-[var(--line)]">
+
+    <div class="flex items-center justify-between gap-3">
+      <div>
+        <div class="font-semibold text-sm">Auto Lock</div>
+        <p class="subtle text-xs">Automatically lock after inactivity</p>
+      </div>
+      <label class="relative inline-flex items-center cursor-pointer">
+        <input type="checkbox" id="autoLockToggle"
+          class="sr-only peer" onchange="toggleAutoLock(this.checked)">
+        <div class="w-11 h-6 bg-gray-500 rounded-full peer peer-checked:bg-blue-600 after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
+      </label>
+    </div>
+
+    <div>
+      <label class="text-xs subtle" for="autoLockMinutes">Auto Lock Time</label>
+      <select class="input mt-1" id="autoLockMinutes"
+        onchange="saveAutoLockTime(this.value)">
+        <option value="0.25">15 Seconds</option>
+        <option value="0.5">30 Seconds</option>
+        <option value="1">1 Minute</option>
+        <option value="2">2 Minutes</option>
+        <option value="5">5 Minutes</option>
+        <option value="10">10 Minutes</option>
+        <option value="15">15 Minutes</option>
+        <option value="30">30 Minutes</option>
+        <option value="60">60 Minutes</option>
+      </select>
+    </div>
   </div>
 
-  <div>
-    <label class="text-xs subtle" for="autoLockMinutes">
-      Auto Lock Time
-    </label>
-  <select class="input mt-1" id="autoLockMinutes"
-  onchange="saveAutoLockTime(this.value)">
-  <option value="0.25">15 Seconds</option>
-  <option value="0.5">30 Seconds</option>
-  <option value="1">1 Minute</option>
-  <option value="2">2 Minutes</option>
-  <option value="5">5 Minutes</option>
-  <option value="10">10 Minutes</option>
-  <option value="15">15 Minutes</option>
-  <option value="30">30 Minutes</option>
-  <option value="60">60 Minutes</option>
-  </select>
-    
- </div>
+  <div class="rounded-xl border border-[var(--line)] p-3 space-y-3">
+    <div class="font-bold text-sm">🔑 Authentication Methods</div>
 
-  <hr class="border-[var(--line)]">
+    <button class="btn w-full" onclick="setPin()">Set / Change PIN</button>
+    <button class="btn w-full" onclick="lockApp()">Lock App Now</button>
+    <button class="btn w-full" onclick="enableBiometric()">Enable Fingerprint / Face</button>
+    <button class="btn w-full" onclick="disableBiometric()">Turn Off Fingerprint / Face</button>
+  </div>
 
-  <div class="grid grid-cols-2 gap-2">
-    <button class="btn" onclick="setPin()">Set / Change PIN</button>
-    <button class="btn" onclick="lockApp()">Lock now</button>
-    <button class="btn" onclick="enableBiometric()">Enable fingerprint / face</button>
-    <button class="btn" onclick="disableBiometric()">Turn off fingerprint / face</button>
+  <div class="rounded-xl border border-[var(--line)] p-3 space-y-2">
+    <div class="font-bold text-sm">🔒 Advanced Security</div>
+    <p class="subtle text-xs">
+      Next: Authenticator OTP, Recovery Options and Data Encryption.
+    </p>
   </div>
 
   <p class="subtle text-xs">
-    PIN and fingerprint/face protect this device only. They do not encrypt your data.
+    Current PIN and biometric protection are local access barriers.
+    They do not encrypt your stored salary and attendance data.
   </p>
 
-</div> </div></div><div class="card p-4 md:col-span-2"><h2 class="font-bold mb-3">Backup / Export</h2><div class="flex flex-wrap gap-2"><button class="btn" onclick="backup()">Download JSON backup</button><button class="btn" onclick="document.getElementById('restoreFile').click()">Restore backup</button><input type="file" id="restoreFile" class="hidden" accept="application/json" onchange="restoreBackup(event)"><button class="btn" onclick="exportCSV()">Export CSV</button><button class="btn" onclick="window.print()">Print / Save PDF</button><button class="btn" onclick="logoutGoogle()">Google Logout</button></div></div></div></section>
+</div>
+
+
+ </div></div><div class="card p-4 md:col-span-2"><h2 class="font-bold mb-3">Backup / Export</h2><div class="flex flex-wrap gap-2"><button class="btn" onclick="backup()">Download JSON backup</button><button class="btn" onclick="document.getElementById('restoreFile').click()">Restore backup</button><input type="file" id="restoreFile" class="hidden" accept="application/json" onchange="restoreBackup(event)"><button class="btn" onclick="exportCSV()">Export CSV</button><button class="btn" onclick="window.print()">Print / Save PDF</button><button class="btn" onclick="logoutGoogle()">Google Logout</button></div></div></div></section>
 </div>
 <div class="subtle text-xs text-center pb-3">Salary Pro Ultimate V3.2 · Offline-ready app shell · Local data is stored in this browser. PIN and fingerprint/face lock are local access barriers on this device, not encryption.</div>
 <dialog id="entryDialog"><form method="dialog" class="p-4" onsubmit="return false"><div class="flex justify-between mb-3"><h2 class="font-bold text-lg" id="entryTitle">Add entry</h2><button class="btn" onclick="entryDialog.close()">✕</button></div><input id="editId" type="hidden"><div class="grid grid-cols-2 gap-3"><div><label class="subtle text-xs">Date</label><input class="input" id="entryDate" type="date"></div><div><label class="subtle text-xs">Type</label><select class="input" id="entryType" onchange="entryTypeChanged()"><option value="med">Medical leave</option><option value="cas">Casual leave</option><option value="half">Half day</option><option value="short">Short leave</option><option value="duty">Duty leave</option><option value="ot">Overtime</option><option value="bata">Bata</option></select></div><div id="hoursBox"><label class="subtle text-xs">Hours</label><input class="input" type="number" min="0" step="0.25" id="entryHours" value="1"></div><div><label class="subtle text-xs">Note</label><input class="input" id="entryNote" placeholder="Optional"></div></div><button class="btn primary w-full mt-4" onclick="saveEntry()">Save entry</button></form></dialog>
