@@ -575,7 +575,7 @@ function toggleAutoLock(enabled) {
 function saveAutoLockTime(value) {
   const minutes = Number(value);
 
-  if (![1, 2, 5, 10, 15, 30, 60].includes(minutes)) return;
+  if (![0.25, 0.5, 1, 2, 5, 10, 15, 30, 60].includes(minutes)) return;
 
   localStorage.setItem('salaryProAutoLockMinutes', String(minutes));
 
