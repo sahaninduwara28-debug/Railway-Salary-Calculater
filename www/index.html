@@ -398,30 +398,81 @@ async function setPin() {
     return alert('PIN hashing is unavailable in this browser.');
   }
 
-  const p = prompt('Set a 6-digit PIN');
-  if (p === null) return;
+  const saved = localStorage.getItem('salaryProPin');
 
-  if (!/^\d{6}$/.test(p)) {
-    return alert('PIN must be exactly 6 digits');
+  // Verify current PIN before changing it.
+  if (saved) {
+    const oldPin = prompt('Enter your current 6-digit PIN');
+    if (oldPin === null) return;
+
+    if (!/^\d{6}$/.test(oldPin)) {
+      return alert('Current PIN must be exactly 6 digits.');
+    }
+
+    let valid = false;
+    let parsed = null;
+
+    try {
+      parsed = JSON.parse(saved);
+    } catch (e) {}
+
+    try {
+      if (
+        parsed &&
+        typeof parsed.salt === 'string' &&
+        /^[a-f0-9]{32}$/i.test(parsed.salt) &&
+        typeof parsed.hash === 'string' &&
+        /^[a-f0-9]{64}$/i.test(parsed.hash)
+      ) {
+        const check = await hashPin(oldPin, parsed.salt);
+        valid = check.hash === parsed.hash;
+      } else if (/^[a-f0-9]{64}$/i.test(saved)) {
+        valid = (await legacyPinHash(oldPin)) === saved;
+      }
+    } catch (e) {
+      return alert('Could not verify current PIN: ' + e.message);
+    }
+
+    if (!valid) {
+      return alert('Incorrect current PIN. PIN was not changed.');
+    }
+  }
+
+  // Enter the new PIN twice.
+  const newPin = prompt('Enter your new 6-digit PIN');
+  if (newPin === null) return;
+
+  if (!/^\d{6}$/.test(newPin)) {
+    return alert('New PIN must be exactly 6 digits.');
+  }
+
+  const confirmPin = prompt('Confirm your new 6-digit PIN');
+  if (confirmPin === null) return;
+
+  if (newPin !== confirmPin) {
+    return alert('PINs do not match. Please try again.');
   }
 
   try {
-    const h = await hashPin(p);
+    const hashed = await hashPin(newPin);
 
-    localStorage.salaryProPin = JSON.stringify(h);
+    localStorage.setItem('salaryProPin', JSON.stringify(hashed));
     localStorage.setItem('salaryProLockEnabled', '1');
+    localStorage.setItem('salaryProLastActivity', String(Date.now()));
 
     renderLockSettings();
+    scheduleAutoLock();
 
-    alert('PIN saved successfully. App Lock is now enabled.');
+    alert('PIN saved successfully. App Lock is enabled.');
 
     if (confirm('Lock the app now?')) {
       lockApp();
     }
   } catch (e) {
-    alert('Could not set PIN: ' + e.message);
+    alert('Could not save PIN: ' + e.message);
   }
 }
+
 function lockApp() {
   if (!hasLock()) {
     return alert('Set a PIN or enable fingerprint/face first.');
