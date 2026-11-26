@@ -446,7 +446,7 @@ async function unlock(){const pin=unlockPin.value,sec=state.security,now=Date.no
 
   localStorage.setItem('salaryProLastActivity', String(Date.now()));
   scheduleAutoLock();
-} )else{sec.failures=(sec.failures||0)+1;if(sec.failures>=5){sec.lockUntil=Date.now()+60000;sec.failures=0;unlockErr.textContent='Locked for 60 seconds after failed attempts.'}else unlockErr.textContent='Incorrect PIN ('+(5-sec.failures)+' attempts remaining)';persist()}}catch(e){unlockErr.textContent='PIN verification failed: '+e.message}}
+} else{sec.failures=(sec.failures||0)+1;if(sec.failures>=5){sec.lockUntil=Date.now()+60000;sec.failures=0;unlockErr.textContent='Locked for 60 seconds after failed attempts.'}else unlockErr.textContent='Incorrect PIN ('+(5-sec.failures)+' attempts remaining)';persist()}}catch(e){unlockErr.textContent='PIN verification failed: '+e.message}}
 // Biometric unlock: WebAuthn platform passkey (fingerprint/face). The assertion signature, challenge, origin, rpId hash and user-verification flag are all verified locally. Like the PIN, this is a convenience barrier on this device, not data encryption.
 let bioBusy=false;
 const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
