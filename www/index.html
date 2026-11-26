@@ -624,23 +624,35 @@ async function enableBiometric() {
     return;
   }
 
+  if (bioBusy) return;
   bioBusy = true;
+
   try {
     const info = await bio.checkBiometry();
 
     if (!info.isAvailable) {
-      alert('Fingerprint/face is not available. Please register your fingerprint or face in phone settings first.');
+      alert('Fingerprint/face is not available. Please register it in phone settings first.');
       return;
     }
 
+    // Verify the user before enabling biometric unlock.
+    await bio.authenticate({
+      reason: 'Enable biometric unlock for Salary Pro',
+      cancelTitle: 'Cancel',
+      allowDeviceCredential: false,
+      androidTitle: 'Salary Pro',
+      androidSubtitle: 'Verify your identity to enable',
+      androidConfirmationRequired: false
+    });
+
     localStorage.setItem(
-  'salaryProBio',
-  JSON.stringify({ native: true })
-);
+      'salaryProBio',
+      JSON.stringify({ native: true })
+    );
 
-localStorage.setItem('salaryProLockEnabled', '1');
+    localStorage.setItem('salaryProLockEnabled', '1');
 
-renderLockSettings();
+    renderLockSettings();
 
     alert('Fingerprint/face unlock enabled successfully!');
   } catch (e) {
