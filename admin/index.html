@@ -1,0 +1,955 @@
+
+<!DOCTYPE html>
+<html lang="si">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#08111f">
+<title>Salary Pro Admin</title>
+
+<style>
+:root {
+  --bg:#08111f;
+  --panel:#111e31;
+  --panel2:#172941;
+  --line:#293d58;
+  --text:#edf4ff;
+  --muted:#9aacc5;
+  --blue:#4f8cff;
+  --cyan:#43cce0;
+  --green:#36d99a;
+  --red:#ff737d;
+}
+* {box-sizing:border-box}
+body {
+  margin:0;
+  background:linear-gradient(145deg,#142642,var(--bg) 55%);
+  color:var(--text);
+  font-family:system-ui,"Noto Sans Sinhala",sans-serif;
+  min-height:100vh;
+}
+button,input,select {font:inherit}
+button {
+  min-height:44px;
+  padding:10px 14px;
+  border-radius:11px;
+  border:1px solid var(--line);
+  background:var(--panel2);
+  color:var(--text);
+  cursor:pointer;
+}
+button:hover {border-color:var(--blue)}
+.primary {
+  background:linear-gradient(120deg,#3479ee,#35b9d2);
+  border:0;
+  font-weight:700;
+}
+input,select {
+  width:100%;
+  min-height:44px;
+  padding:11px;
+  border:1px solid var(--line);
+  border-radius:10px;
+  background:#091525;
+  color:var(--text);
+}
+label {
+  display:block;
+  color:var(--muted);
+  margin:13px 0 6px;
+  font-size:13px;
+}
+.hidden {display:none!important}
+.wrap {max-width:1400px;margin:auto;padding:22px}
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:22px;
+}
+.brand {display:flex;align-items:center;gap:12px}
+.logo {
+  width:45px;height:45px;
+  display:grid;place-items:center;
+  border-radius:14px;
+  background:linear-gradient(135deg,#367cf3,#3ed0dc);
+  color:#061323;font-weight:900;
+}
+.brand h1 {font-size:20px;margin:0}
+.brand p {font-size:12px;color:var(--muted);margin:3px 0}
+.panel {
+  background:rgba(17,30,49,.96);
+  border:1px solid var(--line);
+  border-radius:17px;
+  padding:18px;
+  box-shadow:0 12px 35px #0003;
+}
+.login {max-width:450px;margin:8vh auto}
+.login h2 {margin-top:0}
+.login button {width:100%;margin-top:12px}
+.muted {color:var(--muted)}
+.status {font-size:13px;margin-top:12px;overflow-wrap:anywhere}
+.error {color:var(--red)}
+.success {color:var(--green)}
+.stats {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:13px;
+  margin-bottom:15px;
+}
+.stat small {color:var(--muted)}
+.stat strong {display:block;font-size:27px;margin-top:8px}
+.layout {
+  display:grid;
+  grid-template-columns:340px minmax(0,1fr);
+  gap:15px;
+}
+.headrow {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+}
+h2.section {font-size:17px;margin:0}
+.filters {
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+  margin:14px 0;
+}
+.userlist {max-height:65vh;overflow:auto}
+.user {
+  background:#0b192b;
+  border:1px solid transparent;
+  padding:13px;
+  border-radius:12px;
+  margin:7px 0;
+  cursor:pointer;
+  overflow-wrap:anywhere;
+}
+.user:hover,.user.active {
+  border-color:var(--blue);
+  background:#142b47;
+}
+.user strong {display:block}
+.user small {color:var(--muted);font-size:12px}
+.tabs {
+  display:flex;gap:7px;flex-wrap:wrap;
+  margin:16px 0;
+}
+.tabs button.active {
+  background:#2866bd;
+  border-color:var(--blue);
+}
+.grid {
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px;
+}
+.kv {
+  background:#0b192b;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:12px;
+  overflow-wrap:anywhere;
+}
+.kv small {display:block;color:var(--muted);margin-bottom:5px}
+.kv b {font-size:13px}
+.tablewrap {
+  overflow:auto;
+  border:1px solid var(--line);
+  border-radius:12px;
+  margin-top:12px;
+}
+table {width:100%;border-collapse:collapse;min-width:550px}
+th,td {
+  padding:11px;
+  border-bottom:1px solid var(--line);
+  text-align:left;
+  font-size:13px;
+  vertical-align:top;
+  overflow-wrap:anywhere;
+}
+th {background:#0b192b;color:#b9cbe3}
+pre {
+  background:#071321;
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:14px;
+  white-space:pre-wrap;
+  overflow-wrap:anywhere;
+  overflow:auto;
+  max-height:60vh;
+  font-size:12px;
+}
+.empty {padding:35px;text-align:center;color:var(--muted)}
+.badge {
+  display:inline-block;
+  border:1px solid var(--line);
+  padding:5px 9px;
+  border-radius:20px;
+  font-size:11px;
+  color:var(--cyan);
+}
+.footer {text-align:center;color:var(--muted);font-size:11px;margin:22px 0}
+@media(max-width:900px) {
+  .layout {grid-template-columns:1fr}
+  .userlist {max-height:300px}
+}
+@media(max-width:600px) {
+  .wrap {padding:12px}
+  .stats {grid-template-columns:repeat(2,1fr);gap:8px}
+  .stat {padding:12px}
+  .stat strong {font-size:22px}
+  .grid {grid-template-columns:1fr}
+  .brand h1 {font-size:17px}
+}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<header class="header">
+  <div class="brand">
+    <div class="logo">SP</div>
+    <div>
+      <h1>Salary Pro Admin</h1>
+      <p>පරිපාලක පාලක පුවරුව</p>
+    </div>
+  </div>
+
+  <div id="topActions" class="hidden">
+    <span class="badge" id="adminEmail"></span>
+    <button id="logoutBtn">Logout</button>
+  </div>
+</header>
+
+<!-- LOGIN -->
+<section id="loginPanel" class="panel login">
+  <h2>පරිපාලක පිවිසුම</h2>
+  <p class="muted">Admin ගිණුමෙන් පමණක් පිවිසෙන්න.</p>
+
+  <label for="email">Email ලිපිනය</label>
+  <input id="email" type="email" autocomplete="username">
+
+  <label for="password">මුරපදය</label>
+  <input id="password" type="password" autocomplete="current-password">
+
+  <button class="primary" id="emailLogin">Email මගින් පිවිසෙන්න</button>
+  <button id="googleLogin">Google මගින් පිවිසෙන්න</button>
+
+  <div id="loginStatus" class="status"></div>
+
+  <p class="muted" style="font-size:12px;line-height:1.6">
+    මෙම Dashboard එක Read-only වේ. පරිශීලක දත්ත බැලීමට
+    ඔවුන්ට පැහැදිලිව දැනුම්දී අවසර ලබාගෙන තිබිය යුතුය.
+  </p>
+</section>
+
+<!-- DASHBOARD -->
+<main id="appPanel" class="hidden">
+
+  <section class="stats">
+    <div class="panel stat">
+      <small>Cloud Users</small>
+      <strong id="userCount">0</strong>
+    </div>
+    <div class="panel stat">
+      <small>Attendance / OT</small>
+      <strong id="entryCount">0</strong>
+    </div>
+    <div class="panel stat">
+      <small>Payslips</small>
+      <strong id="slipCount">0</strong>
+    </div>
+    <div class="panel stat">
+      <small>Latest Sync</small>
+      <strong id="latestSync" style="font-size:15px">—</strong>
+    </div>
+  </section>
+
+  <div class="layout">
+
+    <!-- USER LIST -->
+    <aside class="panel">
+      <div class="headrow">
+        <h2 class="section">පරිශීලකයන්</h2>
+        <button id="refreshBtn">↻ Refresh</button>
+      </div>
+
+      <div class="filters">
+        <input id="searchInput" placeholder="නම / Email / UID සොයන්න">
+        <select id="dateFilter">
+          <option value="all">සියලු දිනයන්</option>
+          <option value="today">අද Sync කළ අය</option>
+          <option value="7">දින 7 තුළ</option>
+          <option value="30">දින 30 තුළ</option>
+        </select>
+      </div>
+
+      <div id="userList" class="userlist">
+        <div class="empty">දත්ත ලබාගනිමින්…</div>
+      </div>
+
+      <div id="loadStatus" class="status"></div>
+    </aside>
+
+    <!-- USER DETAILS -->
+    <section class="panel">
+
+      <div id="detailEmpty" class="empty">
+        විස්තර බැලීමට පරිශීලකයෙකු තෝරන්න.
+      </div>
+
+      <div id="detail" class="hidden">
+
+        <div class="headrow">
+          <div>
+            <h2 class="section" id="detailName"></h2>
+            <p class="muted" id="detailMeta" style="font-size:12px"></p>
+          </div>
+          <button id="downloadUser">JSON Download ↓</button>
+        </div>
+
+        <div class="tabs">
+          <button data-tab="overview" class="active">සාරාංශය</button>
+          <button data-tab="records">Attendance / OT</button>
+          <button data-tab="payslips">Payslips</button>
+          <button data-tab="salary">වැටුප් සැකසුම්</button>
+          <button data-tab="raw">සම්පූර්ණ දත්ත</button>
+        </div>
+
+        <div id="tabContent"></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="footer">
+    Salary Pro Ultimate · Admin Dashboard · Read Only
+  </div>
+</main>
+</div>
+
+<script type="module">
+
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js";
+
+import {
+  getAuth,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut
+} from "https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js";
+
+import {
+  getFirestore,
+  collection,
+  getDocs
+} from "https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js";
+
+
+/* =====================================
+   FIREBASE CONFIG
+   www/index.html ගොනුවේ ඇති අගයන් දාන්න
+===================================== */
+
+const firebaseConfig = {
+  apiKey: "PASTE_YOUR_FIREBASE_API_KEY",
+  authDomain: "railway-salary-calculato-1fd86.firebaseapp.com",
+  projectId: "railway-salary-calculato-1fd86",
+  storageBucket: "railway-salary-calculato-1fd86.firebasestorage.app",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId: "PASTE_YOUR_FIREBASE_APP_ID"
+};
+
+
+/* =====================================
+   ADMIN UID
+===================================== */
+
+const ADMIN_UID = "1X8eXTwV5Aa1JX8EzgOYdbF7Gpr2";
+
+const firebaseApp = initializeApp(firebaseConfig);
+const auth = getAuth(firebaseApp);
+const db = getFirestore(firebaseApp);
+
+let users = [];
+let selectedUser = null;
+let activeTab = "overview";
+
+
+/* =====================================
+   HELPERS
+===================================== */
+
+const $ = id => document.getElementById(id);
+
+function escapeHTML(value) {
+  return String(value ?? "").replace(/[&<>"']/g, c => ({
+    "&":"&amp;",
+    "<":"&lt;",
+    ">":"&gt;",
+    '"':"&quot;",
+    "'":"&#39;"
+  })[c]);
+}
+
+function arrayValue(value) {
+  if (Array.isArray(value)) return value;
+  if (value && typeof value === "object") return Object.values(value);
+  return [];
+}
+
+function getValue(obj, keys) {
+  for (const key of keys) {
+    if (obj && obj[key] !== undefined && obj[key] !== null) {
+      return obj[key];
+    }
+  }
+  return null;
+}
+
+function profileOf(u) {
+  return u.profile || {};
+}
+
+function userName(u) {
+  return getValue(profileOf(u), ["name","fullName","displayName"])
+    || getValue(u, ["name","displayName","email"])
+    || "නම සඳහන් නැත";
+}
+
+function userEmail(u) {
+  return getValue(profileOf(u), ["email","googleEmail"])
+    || u.email || "";
+}
+
+function dateOf(value) {
+  if (!value) return null;
+  if (value.toDate) return value.toDate();
+
+  if (typeof value === "number") {
+    return new Date(value < 1e12 ? value * 1000 : value);
+  }
+
+  const d = new Date(value);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function dateText(value) {
+  const d = dateOf(value);
+  return d ? d.toLocaleString("si-LK") : "—";
+}
+
+function updatedAt(u) {
+  return getValue(u, [
+    "updatedAt",
+    "lastUpdated",
+    "lastSync",
+    "syncedAt",
+    "updated_at"
+  ]) || getValue(u.sync || {}, [
+    "updatedAt",
+    "lastSync",
+    "lastSuccessfulSync"
+  ]);
+}
+
+/* App එකේ data structure වෙනස් වුණත්
+   පොදු key කිහිපයක් හඳුනාගැනීමට උත්සාහ කරයි. */
+
+function attendanceOf(u) {
+  return arrayValue(
+    getValue(u, [
+      "entries",
+      "attendance",
+      "attendanceRecords",
+      "records",
+      "attendanceData"
+    ]) ||
+    getValue(u.data || {}, [
+      "entries",
+      "attendance",
+      "records"
+    ])
+  );
+}
+
+function payslipsOf(u) {
+  return arrayValue(
+    getValue(u, [
+      "paysheets",
+      "payslips",
+      "salarySlips",
+      "salaryHistory"
+    ]) ||
+    getValue(u.data || {}, [
+      "paysheets",
+      "payslips",
+      "salaryHistory"
+    ])
+  );
+}
+
+function showStatus(id, message, type="") {
+  const el = $(id);
+  el.textContent = message;
+  el.className = "status " + type;
+}
+
+
+/* =====================================
+   RENDER DATA
+===================================== */
+
+function objectHTML(obj) {
+  if (!obj || typeof obj !== "object") {
+    return '<div class="empty">දත්ත නොමැත</div>';
+  }
+
+  const entries = Object.entries(obj)
+    .filter(([key]) => !key.startsWith("__"));
+
+  if (!entries.length) {
+    return '<div class="empty">දත්ත නොමැත</div>';
+  }
+
+  return `<div class="grid">${
+    entries.map(([key,value]) => `
+      <div class="kv">
+        <small>${escapeHTML(key)}</small>
+        <b>${escapeHTML(
+          typeof value === "object"
+            ? JSON.stringify(value)
+            : value
+        )}</b>
+      </div>
+    `).join("")
+  }</div>`;
+}
+
+function tableHTML(items) {
+  if (!items.length) {
+    return '<div class="empty">මෙම කොටසේ දත්ත හමු නොවීය.</div>';
+  }
+
+  const keys = [...new Set(
+    items.flatMap(item =>
+      item && typeof item === "object"
+        ? Object.keys(item)
+        : []
+    )
+  )].filter(k => !k.startsWith("__")).slice(0,15);
+
+  if (!keys.length) {
+    return '<div class="empty">පෙන්විය හැකි දත්ත නොමැත.</div>';
+  }
+
+  return `
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>${keys.map(k =>
+            `<th>${escapeHTML(k)}</th>`
+          ).join("")}</tr>
+        </thead>
+        <tbody>
+          ${items.map(item => `
+            <tr>${keys.map(k => `
+              <td>${escapeHTML(
+                typeof item[k] === "object"
+                  ? JSON.stringify(item[k])
+                  : item[k]
+              )}</td>
+            `).join("")}</tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+
+/* =====================================
+   USER LIST
+===================================== */
+
+function filteredUsers() {
+  const query = $("searchInput").value.toLowerCase().trim();
+  const filter = $("dateFilter").value;
+  const now = new Date();
+
+  return users.filter(u => {
+    const searchable = [
+      userName(u),
+      userEmail(u),
+      u.__uid
+    ].join(" ").toLowerCase();
+
+    if (query && !searchable.includes(query)) return false;
+
+    if (filter !== "all") {
+      const d = dateOf(updatedAt(u));
+      if (!d) return false;
+
+      if (filter === "today") {
+        if (d.toDateString() !== now.toDateString()) return false;
+      } else if (now - d > Number(filter) * 86400000) {
+        return false;
+      }
+    }
+
+    return true;
+  }).sort((a,b) =>
+    (dateOf(updatedAt(b))?.getTime() || 0) -
+    (dateOf(updatedAt(a))?.getTime() || 0)
+  );
+}
+
+function renderList() {
+  const list = filteredUsers();
+
+  $("userList").innerHTML = list.length
+    ? list.map(u => `
+      <div class="user ${
+        selectedUser?.__uid === u.__uid ? "active" : ""
+      }" data-uid="${escapeHTML(u.__uid)}">
+        <strong>${escapeHTML(userName(u))}</strong>
+        <small>${escapeHTML(userEmail(u) || u.__uid)}</small>
+        <br>
+        <small>අවසන් Sync: ${escapeHTML(dateText(updatedAt(u)))}</small>
+      </div>
+    `).join("")
+    : '<div class="empty">පරිශීලකයන් හමු නොවීය.</div>';
+
+  document.querySelectorAll(".user").forEach(el => {
+    el.addEventListener("click", () => {
+      selectUser(el.dataset.uid);
+    });
+  });
+}
+
+function renderStats() {
+  $("userCount").textContent = users.length;
+
+  $("entryCount").textContent =
+    users.reduce((n,u) => n + attendanceOf(u).length, 0);
+
+  $("slipCount").textContent =
+    users.reduce((n,u) => n + payslipsOf(u).length, 0);
+
+  const dates = users
+    .map(u => dateOf(updatedAt(u)))
+    .filter(Boolean)
+    .sort((a,b) => b-a);
+
+  $("latestSync").textContent =
+    dates.length ? dates[0].toLocaleDateString("si-LK") : "—";
+}
+
+
+/* =====================================
+   USER DETAILS
+===================================== */
+
+function selectUser(uid) {
+  selectedUser = users.find(u => u.__uid === uid) || null;
+  activeTab = "overview";
+  renderList();
+  renderDetails();
+}
+
+function renderDetails() {
+  if (!selectedUser) {
+    $("detail").classList.add("hidden");
+    $("detailEmpty").classList.remove("hidden");
+    return;
+  }
+
+  $("detailEmpty").classList.add("hidden");
+  $("detail").classList.remove("hidden");
+
+  $("detailName").textContent = userName(selectedUser);
+
+  $("detailMeta").textContent =
+    "UID: " + selectedUser.__uid +
+    " | " + userEmail(selectedUser) +
+    " | Sync: " + dateText(updatedAt(selectedUser));
+
+  $("tabContent").innerHTML = tabContentHTML();
+
+  document.querySelectorAll("[data-tab]").forEach(btn => {
+    btn.classList.toggle(
+      "active",
+      btn.dataset.tab === activeTab
+    );
+  });
+}
+
+function tabContentHTML() {
+  const u = selectedUser;
+  const profile = profileOf(u);
+  const attendance = attendanceOf(u);
+  const slips = payslipsOf(u);
+
+  if (activeTab === "records") {
+    return `
+      <h3>Attendance / OT (${attendance.length})</h3>
+      ${tableHTML(attendance)}
+    `;
+  }
+
+  if (activeTab === "payslips") {
+    return `
+      <h3>Payslips (${slips.length})</h3>
+      ${tableHTML(slips)}
+    `;
+  }
+
+  if (activeTab === "salary") {
+    return `
+      <h3>වැටුප් සැකසුම්</h3>
+      ${objectHTML(
+        u.settings ||
+        u.salarySettings ||
+        u.config ||
+        u.salary ||
+        {}
+      )}
+    `;
+  }
+
+  if (activeTab === "raw") {
+    return `
+      <h3>Firestore Document</h3>
+      <pre>${escapeHTML(JSON.stringify(u,null,2))}</pre>
+    `;
+  }
+
+  return `
+    <h3>පරිශීලක සාරාංශය</h3>
+
+    <div class="grid">
+      <div class="kv">
+        <small>නම</small>
+        <b>${escapeHTML(userName(u))}</b>
+      </div>
+
+      <div class="kv">
+        <small>Email</small>
+        <b>${escapeHTML(userEmail(u) || "—")}</b>
+      </div>
+
+      <div class="kv">
+        <small>Employee ID</small>
+        <b>${escapeHTML(
+          getValue(profile,["employeeId","empId","id"]) || "—"
+        )}</b>
+      </div>
+
+      <div class="kv">
+        <small>දුරකථන අංකය</small>
+        <b>${escapeHTML(
+          getValue(profile,["phone","mobile"]) || "—"
+        )}</b>
+      </div>
+
+      <div class="kv">
+        <small>Attendance / OT</small>
+        <b>${attendance.length}</b>
+      </div>
+
+      <div class="kv">
+        <small>Payslips</small>
+        <b>${slips.length}</b>
+      </div>
+
+      <div class="kv">
+        <small>අවසන් Sync</small>
+        <b>${escapeHTML(dateText(updatedAt(u)))}</b>
+      </div>
+
+      <div class="kv">
+        <small>Privacy Consent</small>
+        <b>${
+          u.privacyConsent?.accepted === true
+            ? "අනුමත කර ඇත"
+            : "තහවුරු කළ නොහැක"
+        }</b>
+      </div>
+    </div>
+
+    <h3>Profile Data</h3>
+    ${objectHTML(profile)}
+  `;
+}
+
+
+/* =====================================
+   FIRESTORE LOAD
+===================================== */
+
+async function loadUsers() {
+  showStatus("loadStatus","Cloud දත්ත ලබාගනිමින්…");
+
+  try {
+    const snapshot = await getDocs(
+      collection(db,"users")
+    );
+
+    users = snapshot.docs.map(doc => ({
+      ...doc.data(),
+      __uid: doc.id
+    }));
+
+    if (selectedUser) {
+      selectedUser =
+        users.find(u => u.__uid === selectedUser.__uid) || null;
+    }
+
+    renderStats();
+    renderList();
+    renderDetails();
+
+    showStatus(
+      "loadStatus",
+      users.length + " දෙනෙකුගේ දත්ත ලබාගත්තා.",
+      "success"
+    );
+
+  } catch(error) {
+    console.error(error);
+
+    showStatus(
+      "loadStatus",
+      "දත්ත ලබාගැනීමට නොහැකි වුණා: " + error.message,
+      "error"
+    );
+  }
+}
+
+
+/* =====================================
+   DOWNLOAD
+===================================== */
+
+function downloadFile(filename, content, type) {
+  const blob = new Blob([content], {type});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  URL.revokeObjectURL(url);
+}
+
+$("downloadUser").addEventListener("click", () => {
+  if (!selectedUser) return;
+
+  downloadFile(
+    "salary-pro-user-" + selectedUser.__uid + ".json",
+    JSON.stringify(selectedUser,null,2),
+    "application/json"
+  );
+});
+
+
+/* =====================================
+   AUTHENTICATION
+===================================== */
+
+$("emailLogin").addEventListener("click", async () => {
+  showStatus("loginStatus","පිවිසෙමින්…");
+
+  try {
+    await signInWithEmailAndPassword(
+      auth,
+      $("email").value.trim(),
+      $("password").value
+    );
+  } catch(error) {
+    showStatus("loginStatus",error.message,"error");
+  }
+});
+
+$("googleLogin").addEventListener("click", async () => {
+  showStatus("loginStatus","Google පිවිසුම විවෘත කරමින්…");
+
+  try {
+    await signInWithPopup(
+      auth,
+      new GoogleAuthProvider()
+    );
+  } catch(error) {
+    showStatus("loginStatus",error.message,"error");
+  }
+});
+
+$("logoutBtn").addEventListener("click", () => {
+  signOut(auth);
+});
+
+
+/* =====================================
+   EVENTS
+===================================== */
+
+$("refreshBtn").addEventListener("click",loadUsers);
+
+$("searchInput").addEventListener("input",renderList);
+
+$("dateFilter").addEventListener("change",renderList);
+
+document.querySelectorAll("[data-tab]").forEach(btn => {
+  btn.addEventListener("click",() => {
+    activeTab = btn.dataset.tab;
+    renderDetails();
+  });
+});
+
+
+/* =====================================
+   AUTH STATE + ADMIN CHECK
+===================================== */
+
+onAuthStateChanged(auth, async user => {
+
+  if (!user) {
+    $("loginPanel").classList.remove("hidden");
+    $("appPanel").classList.add("hidden");
+    $("topActions").classList.add("hidden");
+    return;
+  }
+
+  if (user.uid !== ADMIN_UID) {
+    await signOut(auth);
+
+    showStatus(
+      "loginStatus",
+      "මෙම ගිණුමට Admin අවසර නැහැ.",
+      "error"
+    );
+
+    return;
+  }
+
+  $("loginPanel").classList.add("hidden");
+  $("appPanel").classList.remove("hidden");
+  $("topActions").classList.remove("hidden");
+
+  $("adminEmail").textContent = user.email || "Admin";
+
+  await loadUsers();
+});
+
+</script>
+</body>
+</html>
