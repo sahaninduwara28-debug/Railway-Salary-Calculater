@@ -1,0 +1,36 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return signedIn()
+        && request.auth.uid == '1X8eXTwV5Aa1JX8EzgOYdbF7Gpr2';
+    }
+
+    function hasCloudConsent() {
+      return request.resource.data.keys().hasAll(['privacyConsent'])
+        && request.resource.data.privacyConsent is map
+        && request.resource.data.privacyConsent.accepted == true
+        && request.resource.data.privacyConsent.version == 'salarypro-cloud-consent-v1'
+        && request.resource.data.privacyConsent.userUid == request.auth.uid
+        && request.resource.data.privacyConsent.acceptedAt is string;
+    }
+
+    match /users/{userId} {
+      // Users can read only their own backup. Admin can read all user backups.
+      allow get, list: if signedIn()
+        && (request.auth.uid == userId || isAdmin());
+
+      // Every user write must carry explicit cloud-consent metadata.
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && hasCloudConsent();
+
+      // A user may delete their own cloud backup; admin is read-only here.
+      allow delete: if signedIn() && request.auth.uid == userId;
+    }
+  }
+}
