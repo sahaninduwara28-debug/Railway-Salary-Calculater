@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Salary Pro Admin</title>
+<style>
+body{margin:0;padding:20px;background:#08111f;color:#edf4ff;font:14px system-ui}main{max-width:1100px;margin:auto}.card{background:#101d2e;border:1px solid #2b3d53;border-radius:16px;padding:16px;margin:12px 0}.btn,input{padding:11px;border-radius:10px;border:1px solid #2b3d53;background:#17283d;color:#edf4ff}.btn{cursor:pointer}.primary{background:#397eea}input{min-width:220px}table{width:100%;border-collapse:collapse;min-width:650px}td,th{text-align:left;padding:10px;border-bottom:1px solid #2b3d53}.muted{color:#9aabc0}.scroll{overflow:auto}pre{white-space:pre-wrap;overflow-wrap:anywhere;max-height:65vh;overflow:auto;background:#081321;padding:14px;border-radius:10px}.hidden{display:none!important}
+</style></head><body><main><h1>Salary Pro · Admin Console</h1><p class="muted">Authorized developer access to cloud user records</p>
+<section class="card"><h2>Sign in</h2><p class="muted">Only the Firebase Auth UID allowlisted in Firestore Rules can view all users.</p><button class="btn primary" id="login">Sign in with Google</button> <button class="btn" id="logout">Sign out</button><p id="status">Not connected</p></section>
+<section class="card hidden" id="dash"><h2>Users</h2><input id="filter" placeholder="Search UID or email"> <button class="btn" id="refresh">Refresh</button><p id="count"></p><div class="scroll"><table><thead><tr><th>UID</th><th>Email</th><th>Updated</th><th>Consent</th><th></th></tr></thead><tbody id="users"></tbody></table></div></section>
+<section class="card hidden" id="detail"><h2 id="who">User details</h2><button class="btn" id="export">Export JSON</button> <button class="btn" id="close">Close</button><pre id="data"></pre></section></main>
+<script type="module">
+import {initializeApp} from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-app.js';
+import {getAuth,GoogleAuthProvider,signInWithPopup,onAuthStateChanged,signOut} from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-auth.js';
+import {getFirestore,collection,getDocs,doc,getDoc} from 'https://www.gstatic.com/firebasejs/11.2.0/firebase-firestore.js';
+const cfg={apiKey:"AIzaSyBSH3lIizj6C-nvhabq_vnZ_ZvcunOvhbc",authDomain:"railway-salary-calculato-1fd86.firebaseapp.com",projectId:"railway-salary-calculato-1fd86",storageBucket:"railway-salary-calculato-1fd86.firebasestorage.app",messagingSenderId:"991198165482",appId:"1:991198165482:web:60a20d85414c8702679a93"};
+const app=initializeApp(cfg,'salarypro-admin'),auth=getAuth(app),db=getFirestore(app),$=id=>document.getElementById(id);let all=[],chosen=null;
+function say(t){$('status').textContent=t}
+$('login').onclick=async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider())}catch(e){say('Login failed: '+e.message)}};
+$('logout').onclick=()=>signOut(auth);
+onAuthStateChanged(auth,async u=>{ $('dash').classList.toggle('hidden',!u);if(!u){say('Signed out');return}say('Signed in as '+(u.email||u.uid)+'; checking permissions');await refresh()});
+async function refresh(){try{const s=await getDocs(collection(db,'users'));all=s.docs.map(d=>({uid:d.id,...d.data()}));draw();say('Loaded '+all.length+' user records')}catch(e){say('Could not load users: '+e.message)}}
+function esc(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function draw(){const q=$('filter').value.toLowerCase(),list=all.filter(x=>x.uid.toLowerCase().includes(q)||String(x.email||'').toLowerCase().includes(q));$('count').textContent=list.length+' of '+all.length+' users';$('users').innerHTML=list.map(x=>'<tr><td>'+esc(x.uid)+'</td><td>'+esc(x.email||'—')+'</td><td>'+esc(x.updatedAt||'—')+'</td><td>'+(x.privacyConsent?.accepted?'Agreed':'Not recorded')+'</td><td><button class="btn" data-uid="'+esc(x.uid)+'">View all</button></td></tr>').join('');$('users').querySelectorAll('button').forEach(b=>b.onclick=()=>view(b.dataset.uid))}
+async function view(uid){try{const s=await getDoc(doc(db,'users',uid));if(!s.exists())throw Error('Record not found');chosen={uid,...s.data()};$('who').textContent='Full record: '+uid;$('data').textContent=JSON.stringify(chosen,null,2);$('detail').classList.remove('hidden')}catch(e){say('Read failed: '+e.message)}}
+$('filter').oninput=draw;$('refresh').onclick=refresh;$('close').onclick=()=>$('detail').classList.add('hidden');
+$('export').onclick=()=>{if(!chosen)return;const b=new Blob([JSON.stringify(chosen,null,2)],{type:'application/json'}),u=URL.createObjectURL(b),a=document.createElement('a');a.href=u;a.download='salary-pro-'+chosen.uid+'.json';a.click();URL.revokeObjectURL(u)};
+</script></body></html>
